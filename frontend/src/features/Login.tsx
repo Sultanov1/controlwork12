@@ -1,50 +1,34 @@
 import React, {useState} from 'react';
-import {Alert, Box, Button, Container, Grid, Link, TextField, Typography} from '@mui/material';
-import {selectRegisterError} from './userSlice.ts';
-import {googleLogin, register} from './userThunk.ts';
-import {GoogleLogin} from '@react-oauth/google';
-import {Link as RouterLink, useNavigate} from "react-router-dom";
+import {selectLoginError} from "./userSlice.ts";
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import {googleLogin, login} from "./userThunk.ts";
+import {GoogleLogin} from "@react-oauth/google";
+import {Alert, Avatar, Box, Button, Container, Grid, Link, TextField, Typography} from "@mui/material";
+import LockOpenIcon from '@mui/icons-material/LockOpen';
+import {LoginMutation} from "../types";
 import {useAppDispatch, useAppSelector} from "../app/hooks.ts";
-import {RegisterMutation} from "../types";
 
-
-const Register = () => {
-  const navigate = useNavigate();
+const Login = () => {
   const dispatch = useAppDispatch();
-  const error = useAppSelector(selectRegisterError);
-
-  const [state, setState] = useState<RegisterMutation>({
+  const navigate = useNavigate();
+  const error = useAppSelector(selectLoginError);
+  const [state, setState] = useState<LoginMutation>({
     email: '',
     password: '',
-    displayName: '',
-    avatar: null,
   });
 
   const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setState((prevState) => ({ ...prevState, [name]: value }));
   };
 
   const submitFormHandler = async (event: React.FormEvent) => {
     event.preventDefault();
-
     try {
-      await dispatch(register(state)).unwrap();
-      navigate('/login');
-      alert('Вы успешно зарегистрировались! Войдите в аккаунт');
-    } catch (e) {
-      console.log('Something went wrong', e);
-    }
-  };
-
-  const getFieldError = (name: string) => {
-    try {
-      return error?.errors[name].message;
-    } catch {
-      return undefined;
+      await dispatch(login(state)).unwrap();
+      navigate('/');
+    } catch(e) {
+      console.log(e);
     }
   };
 
@@ -52,7 +36,6 @@ const Register = () => {
     await dispatch(googleLogin(credential)).unwrap();
     navigate('/');
   };
-
   return (
     <Container component="main" maxWidth="xs">
       <Box
@@ -63,8 +46,11 @@ const Register = () => {
           alignItems: 'center',
         }}
       >
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <LockOpenIcon />
+        </Avatar>
         <Typography component="h1" variant="h5" sx={{ color: 'white' }}>
-          Sign up
+          Sign in
         </Typography>
 
         <Box sx={{ pt: 2 }}>
@@ -82,47 +68,30 @@ const Register = () => {
 
         {error && (
           <Alert severity="error" sx={{ mt: 3, width: '100%' }}>
-            {error.message}
+            {error.error}
           </Alert>
         )}
-
-        <Box component="form" noValidate onSubmit={submitFormHandler} sx={{ mt: 3 }}>
+        <Box component="form" onSubmit={submitFormHandler} sx={{ mt: 3 }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
                 sx={{ width: '100%', background: 'white', borderRadius: 2 }}
                 label="Email"
                 name="email"
-                autoComplete="new-username"
+                autoComplete="current-username"
                 value={state.email}
                 onChange={inputChangeHandler}
-                error={Boolean(getFieldError('username'))}
-                helperText={getFieldError('username')}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 sx={{ width: '100%', background: 'white', borderRadius: 2 }}
-                label="Name"
-                name="displayName"
-                autoComplete="new-name"
-                value={state.displayName}
-                onChange={inputChangeHandler}
-                error={!!getFieldError('name')}
-                helperText={getFieldError('name')}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                sx={{ width: '100%', background: 'white', borderRadius: 2, marginBottom: '15px' }}
-                name="password"
                 label="Password"
+                name="password"
                 type="password"
-                autoComplete="new-password"
+                autoComplete="current-password"
                 value={state.password}
                 onChange={inputChangeHandler}
-                error={Boolean(getFieldError('password'))}
-                helperText={getFieldError('password')}
               />
             </Grid>
           </Grid>
@@ -132,20 +101,20 @@ const Register = () => {
             variant="contained"
             sx={{ mt: 3, mb: 2, background: 'white', color: 'black' }}
           >
-            Sign Up
+            Sign In
           </Button>
           <Grid container justifyContent="flex-end">
             <Grid item>
-              <Link className='link' component={RouterLink} to="/login" variant="body2">
-                Already have an account? Sign in
+              <Link class='link' component={RouterLink} to="/register" variant="body2">
+                Don't have an account? Sign up
               </Link>
             </Grid>
           </Grid>
         </Box>
       </Box>
     </Container>
+
   );
 };
 
-export default Register;
-
+export default Login;

@@ -5,7 +5,7 @@ import { persistStore, persistReducer } from "redux-persist";
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 
 const usersPersistConfig = {
-  key: 'cocktail:user',
+  key: 'post:user',
   storage,
   whitelist: ['user'],
 };

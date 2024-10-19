@@ -1,33 +1,16 @@
-import { Button, Grid, Typography } from '@mui/material';
-import { NavLink } from 'react-router-dom';
+import { Button } from '@mui/material';
+import { Link as NavLink } from 'react-router-dom';
 
 const AnonymousMenu = () => {
   return (
-    <Grid sx={{display: 'flex', alignItems: 'center'}} item>
-      <NavLink style={{
-        marginRight: '30px',
-        textDecoration: 'none',
-        color: 'black'
-      }} to={'/register'}>
-        <Typography sx={{
-          fontWeight: 'bold',
-        }}>
-          Sign up
-        </Typography>
-      </NavLink>
-      <NavLink style={{
-        marginRight: '30px',
-        textDecoration: 'none',
-        color: 'black'
-      }} to={'/login'}>
-        <Button sx={{
-          borderRadius: '20px',
-          fontWeight: 'bold'
-        }} variant="contained" color="success">
-          Sign in
-        </Button>
-      </NavLink>
-    </Grid>
+    <>
+      <Button component={NavLink} to="/register" color="inherit">
+        Sign up
+      </Button>
+      <Button component={NavLink} to="/login" color="inherit">
+        Sign in
+      </Button>
+    </>
   );
 };
 

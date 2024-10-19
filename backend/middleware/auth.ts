@@ -11,7 +11,7 @@ export const auth = async (req: RequestWithUser, res: Response, next: NextFuncti
   const headerValue = req.get('Authorization');
 
   if (!headerValue) {
-    return res.status(401).send({error: 'Header "Authorization" not found'});
+    return res.status(401).send({error: 'AppToolbar "Authorization" not found'});
   }
 
   const [_bearer, token] = headerValue.split(' ');

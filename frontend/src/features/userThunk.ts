@@ -1,7 +1,9 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { isAxiosError } from 'axios';
-import { GlobalError, UserDetails, RegisterMutation, RegisterResponse, ValidationError } from '../types';
-import axiosApi from '../axiosApi.ts';
+import {createAsyncThunk} from "@reduxjs/toolkit";
+import {isAxiosError} from "axios";
+import {RootState} from "../app/store";
+import axiosApi from "../axiosApi.ts";
+import {GlobalError, UserDetails, LoginMutation, RegisterMutation, RegisterResponse, ValidationError} from "../types";
+import { unsetUser } from './userSlice.ts';
 
 export const register = createAsyncThunk<
   RegisterResponse,
@@ -9,18 +11,7 @@ export const register = createAsyncThunk<
   { rejectValue: ValidationError }
 >('users/register', async (registerMutation, { rejectWithValue }) => {
   try {
-    const formData = new FormData();
-    const keys = Object.keys(registerMutation) as (keyof RegisterMutation)[];
-
-    keys.forEach((key) => {
-      const value = registerMutation[key];
-
-      if (value) {
-        formData.append(key, value);
-      }
-    });
-
-    const response = await axiosApi.post<RegisterResponse>('/users', formData);
+    const response = await axiosApi.post<RegisterResponse>('/users', registerMutation);
     return response.data;
   } catch (e) {
     if (isAxiosError(e) && e.response && e.response.status === 400) {
@@ -32,7 +23,7 @@ export const register = createAsyncThunk<
 
 export const login = createAsyncThunk<
   RegisterResponse,
-  RegisterMutation,
+  LoginMutation,
   { rejectValue: GlobalError }
 >('users/login', async (loginMutation, { rejectWithValue }) => {
   try {
@@ -46,16 +37,12 @@ export const login = createAsyncThunk<
   }
 });
 
-export const logout = createAsyncThunk('users/logout', async () => {
-  await axiosApi.delete('/users/sessions');
-});
 
 export const googleLogin = createAsyncThunk<UserDetails, string, { rejectValue: GlobalError }>(
   'users/googleLogin',
   async (credential, { rejectWithValue }) => {
     try {
       const response = await axiosApi.post<RegisterResponse>('/users/google', { credential });
-
       return response.data.user;
     } catch (e) {
       if (isAxiosError(e) && e.response && e.response.status === 400) {
@@ -64,4 +51,13 @@ export const googleLogin = createAsyncThunk<UserDetails, string, { rejectValue: 
       throw e;
     }
   },
+);
+
+export const logout = createAsyncThunk<void, void, { state: RootState }>(
+  'users/logout',
+  async (_, { getState, dispatch }) => {
+    const token = getState().users.user?.token;
+    await axiosApi.delete('users/sessions', { headers: {'Authorization': token}});
+    dispatch(unsetUser());
+  }
 );

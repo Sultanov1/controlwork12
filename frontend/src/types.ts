@@ -9,7 +9,7 @@ export interface UserDetails {
   googleID?: string;
 }
 
-  export interface RegisterResponse {
+export interface RegisterResponse {
   user: UserDetails;
   message: string;
 }

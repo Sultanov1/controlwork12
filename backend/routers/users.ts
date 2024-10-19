@@ -6,8 +6,8 @@ import config from "../config";
 import crypto from "crypto";
 import {imagesUpload} from "../multer";
 
-const userRouter = express.Router();
-const client = new OAuth2Client(config.google.clientId);
+const userRouter = express();
+const client = new OAuth2Client(config.google.clientId,config.google.clientSecret);
 
 userRouter.post('/', imagesUpload.single('image'), async (req, res, next) => {
   try {
@@ -31,7 +31,7 @@ userRouter.post('/', imagesUpload.single('image'), async (req, res, next) => {
 });
 userRouter.post('/sessions', async (req, res, next) => {
   try {
-    const user = await User.findOne({email: req.body.email});
+    const user = await User.findOne({email: req.body.email}).exec();
 
     if(!user) {
       return res.status(422).send({error: 'User not found!'});
@@ -48,7 +48,7 @@ userRouter.post('/sessions', async (req, res, next) => {
 
     return res.send({message: 'Email and password are correct!', user});
   } catch (e) {
-    next(e);
+    return next(e);
   }
 });
 
@@ -59,7 +59,7 @@ userRouter.delete('/sessions', async (req, res, next) => {
 
     if (!token) return res.send(success);
 
-    const user = await User.findOne({token});
+    const user = await User.findOne({token}).exec();
 
     if (!user) return res.send(success);
 
@@ -94,10 +94,10 @@ userRouter.post('/google', imagesUpload.single('image'), async (req, res, next) 
       return res.status(400).send({ error: 'Not enough user data to continue' });
     }
 
-    let user = await User.findOne({ googleID: id });
+    let user = await User.findOne({ googleID: id }).exec();
 
     if (!user) {
-      user = await User.findOne({ email: email });
+      user = await User.findOne({ email: email }).exec();
     }
 
     if (!user) {
