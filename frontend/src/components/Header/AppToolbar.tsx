@@ -2,7 +2,7 @@ import { AppBar, styled, Toolbar, Typography } from '@mui/material';
 import { Link as NavLink } from 'react-router-dom';
 import UserMenu from './UserMenu';
 import AnonymousMenu from './AnonymousMenu';
-import { selectUser } from "../../features/userSlice.ts";
+import { selectUser } from "../../features/users/usersSlice.ts";
 import {useAppSelector} from "../../app/hooks.ts";
 
 const Link = styled(NavLink)({

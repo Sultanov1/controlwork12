@@ -1,9 +1,9 @@
+import {UserDetails} from "../../types";
 import {useAppDispatch} from "../../app/hooks.ts";
 import React, {useState} from "react";
-import {logout} from "../../features/userThunk.ts";
+import {logout} from "../../features/users/usersThunk.ts";
 import {Button, Menu, MenuItem} from "@mui/material";
 import {Link} from "react-router-dom";
-import { UserDetails } from '../../types.ts';
 
 interface Props {
   user: UserDetails;
@@ -30,7 +30,9 @@ const UserMenu: React.FC<Props> = ({ user }) => {
         Hello, {user.displayName}
       </Button>
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
-        <MenuItem><Link style={{textDecoration: 'none', color:'black'}} to='/my_cocktails'>My gallery</Link></MenuItem>
+        <MenuItem>
+          <Link to={`/posts?user=${user._id}`} style={{color: 'black', textDecoration: 'none'}}>My gallery</Link>
+        </MenuItem>
         <MenuItem onClick={goOut}>Logout</MenuItem>
       </Menu>
     </>

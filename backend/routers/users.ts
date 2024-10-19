@@ -3,12 +3,27 @@ import User from '../models/User';
 import {Error} from 'mongoose';
 import {OAuth2Client} from 'google-auth-library';
 import config from '../config';
-import crypto from 'crypto';
+import crypto, {randomUUID} from 'crypto';
 import {imagesUpload} from '../multer';
-import auth, {RequestWithUser} from '../middleware/auth';
+import {auth, RequestWithUser} from "../middleware/auth";
 
 const userRouter = express();
 const client = new OAuth2Client(config.google.clientId, config.google.clientSecret);
+
+userRouter.get('/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      res.status(404).send({ error: "User not found!" });
+      return;
+    }
+
+     res.send(user);
+  } catch (error) {
+    console.error(`Error ${error}`);
+  }
+});
 
 userRouter.post('/', imagesUpload.single('avatar'), async (req, res, next) => {
   try {
@@ -53,18 +68,16 @@ userRouter.post('/sessions', async (req, res, next) => {
   }
 });
 
-userRouter.delete('/sessions', auth, async (req: RequestWithUser, res, next) => {
+userRouter.delete("/sessions", auth, async (req, res) => {
   try {
-    if (!req.user) {
-       res.status(401).send({error: 'User not found'});
-       return;
-    }
-
-    res.status(204).send();
-  } catch (error) {
-     next(error);
+    const user = (req as RequestWithUser).user;
+    user.token = randomUUID();
+    await user.save();
+    res.send({ message: "Logout successful, token has been refreshed" });
+  } catch (e) {
+    res.status(500).send({ error: "Internal Server Error" });
   }
-})
+});
 
 userRouter.post('/google', async (req, res, next) => {
   try {

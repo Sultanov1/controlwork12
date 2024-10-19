@@ -18,7 +18,7 @@ postRouter.get('/', async (req , res, next) => {
       return;
     }
 
-    const posts = await Post.find();
+    const posts = await Post.find().populate('user', 'displayName');
     res.send(posts);
   } catch (e) {
     next(e);
