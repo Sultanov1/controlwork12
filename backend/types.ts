@@ -5,9 +5,9 @@ export interface UserFields {
   password: string;
   token: string;
   role: string;
-  displayName?: string;
+  displayName: string;
   googleID?: string;
-  image: string | null;
+  image?: string | null;
 }
 
 export interface UserMethods {

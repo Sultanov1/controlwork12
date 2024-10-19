@@ -1,8 +1,15 @@
+import Header from './components/Header/Header.tsx';
+
 const App = () => {
     return (
-        <div>
-            <h1>Init App</h1>
-        </div>
+        <>
+          <header>
+            <Header/>
+          </header>
+          <main>
+            <h1>Пока ничего нету</h1>
+          </main>
+        </>
     );
 };
 
