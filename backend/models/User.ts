@@ -1,4 +1,4 @@
-import mongoose, {HydratedDocument} from 'mongoose';
+import mongoose, {HydratedDocument, model} from 'mongoose';
 import bcrypt from 'bcrypt';
 import {randomUUID} from 'node:crypto';
 import {UserFields, UserMethods, UserModel} from '../types';
@@ -48,30 +48,30 @@ const UserSchema = new Schema<UserFields, UserModel, UserMethods>({
   googleID: String,
 });
 
-UserSchema.methods.checkPassword = function (password) {
-  return bcrypt.compare(password, this.password);
-}
-
-UserSchema.methods.generateToken = function () {
-  this.token = randomUUID();
-}
-
 UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
+  if (!this.isModified('password')) return next();
+
   const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
   this.password = await bcrypt.hash(this.password, salt);
+
   next();
 });
 
 UserSchema.set('toJSON', {
-  transform: (_doc, ret) => {
+  transform: (doc, ret) => {
     delete ret.password;
     return ret;
-  }
+  },
 });
 
-const User = mongoose.model<UserFields, UserModel>('User', UserSchema);
+UserSchema.methods.checkPassword = function (password) {
+  return bcrypt.compare(password, this.password);
+};
+
+UserSchema.methods.generateToken = function () {
+  this.token = randomUUID();
+};
+
+const User = model<UserFields, UserModel>('User', UserSchema);
 
 export default User;
